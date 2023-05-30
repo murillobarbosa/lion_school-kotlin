@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">lion_school</string>
+    <string name="title">Escolha um</string>
+    <string name="description_curse">curso</string>
+    <string name="description_manage">para gerenciar</string>
+    <string name="ds">DS</string>
+    <string name="rds">RDS</string>
+    <string name="status">Status</string>
+    <string name="c">Cursando</string>
+    <string name="f">Finalizado</string>
+    <string name="name">José Matheus da Silva Miranda</string>
+    <string name="name_woman">Hélida Bento De Oliveira Lins</string>
+    <string name="title_activity_main2">MainActivity2</string>
+    <string name="title_activity_main3">MainActivity3</string>
+</resources>
