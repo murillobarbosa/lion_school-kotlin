@@ -236,9 +236,13 @@ fun Greeting2(name: String) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(4.dp),
+                        .padding(4.dp).clickable {
+                            val intent = Intent(context, MainActivity3::class.java)
+                            context.startActivity(intent)
+                        },
+
                     backgroundColor = Color(32,32,32),
-                    shape = RoundedCornerShape(30.dp),
+                    shape = RoundedCornerShape(30.dp)
                     //border = BorderStroke(2.dp, Color.Blue)
                 ) {
                     Row(

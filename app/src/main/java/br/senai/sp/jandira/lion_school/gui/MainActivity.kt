@@ -11,12 +11,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.Center
@@ -35,7 +37,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.senai.sp.jandira.lion_school.model.CoursesList
 import br.senai.sp.jandira.lion_school.ui.theme.Lion_schoolTheme
+import br.senai.sp.jandira.lion_school.service.RetrofitFactory
+import retrofit2.Response
+import retrofit2.Callback
+import retrofit2.Call
 
 
 class MainActivity : ComponentActivity() {
@@ -57,6 +64,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String) {
+    var curso by remember {
+        mutableStateOf(listOf<br.senai.sp.jandira.lion_school.model.Course>())
+    }
     val context = LocalContext.current
 
     Column(
@@ -88,7 +98,7 @@ fun Greeting(name: String) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = br.senai.sp.jandira.lion_school.R.string.title),
-                color = Color	(105,105,105),
+                color = Color(105, 105, 105),
                 fontSize = 30.sp,
                 fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
                 fontStyle = FontStyle.Normal,
@@ -99,7 +109,7 @@ fun Greeting(name: String) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = br.senai.sp.jandira.lion_school.R.string.description_curse),
-                color = Color(0,140,14),
+                color = Color(0, 140, 14),
                 fontSize = 30.sp,
                 fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
                 fontStyle = FontStyle.Normal,
@@ -109,7 +119,7 @@ fun Greeting(name: String) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = br.senai.sp.jandira.lion_school.R.string.description_manage),
-                color = Color(105,105,105),
+                color = Color(105, 105, 105),
                 fontSize = 30.sp,
                 fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
                 fontStyle = FontStyle.Normal,
@@ -120,53 +130,62 @@ fun Greeting(name: String) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Card(
-                modifier = Modifier
-                    .size(100.dp)
-                    .align(alignment = CenterVertically)
-                    .size(50.dp),
-                shape = CircleShape,
-                backgroundColor = Color(35, 35, 35),
+        // Chamada para a API
+
+        val call = RetrofitFactory().getCourseService().getCourses()
+
+        call.enqueue(object : Callback<CoursesList> {
+            override fun onResponse(
+                call: Call<CoursesList>, response: Response<CoursesList>
+
             ) {
-            Text(modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 25.dp)  .clickable {
-                    val intent = Intent(context, MainActivity2::class.java)
-                    context.startActivity(intent)
-                },
-                text = stringResource(id = br.senai.sp.jandira.lion_school.R.string.ds),
-                color = Color.Black,
-                fontSize = 30.sp,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
-                fontStyle = FontStyle.Normal,
-                textAlign = TextAlign.Center,
-
-
-
-            )
-
+                curso = response.body()!!.curso
             }
-            Card(
-                modifier = Modifier
-                    .size(100.dp)
-                    .align(alignment = CenterVertically)
-                    .size(50.dp),
-                shape = CircleShape,
-                backgroundColor = Color(35, 35, 35),
-            ) {
-                Text(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 25.dp) ,
-                    text = stringResource(id = br.senai.sp.jandira.lion_school.R.string.rds),
-                    color = Color.Black,
-                    fontSize = 30.sp,
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
-                    fontStyle = FontStyle.Normal,
-                    textAlign = TextAlign.Center)
 
+            override fun onFailure(call: Call<CoursesList>, t: Throwable) {
+                Log.i("ds2m", "onFailure: ${t.message}")
+            }
+
+
+        })
+
+
+        LazyRow(modifier = Modifier.fillMaxWidth().padding(start = 4.dp)) {
+            items(curso) {
+                Log.i("Cursos", "${curso}: ")
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .align(alignment = CenterVertically)
+                            .size(50.dp).padding(start = 4.dp)
+                            .clickable {
+                                val intent = Intent(context, MainActivity2::class.java)
+                                intent.putExtra("siglaCurso", it.sigla)
+                                intent.putExtra("nomeCurso", it.nome)
+                                context.startActivity(intent)
+                            },
+
+
+                        shape = CircleShape,
+                        backgroundColor = Color(35, 35, 35),
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 25.dp),
+                            text = it.sigla,
+                            color = Color.Black,
+                            fontSize = 30.sp,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
+                            fontStyle = FontStyle.Normal,
+                            textAlign = TextAlign.Center,
+                            )
+                    }
+                }
             }
         }
         Spacer(modifier = Modifier.height(20.dp))
@@ -177,7 +196,7 @@ fun Greeting(name: String) {
                 .height(200.dp),
 
 
-        ) {
+            ) {
             Image(
                 painter = painterResource(id = br.senai.sp.jandira.lion_school.R.drawable.img_hacker),
                 contentDescription = "logo",
@@ -186,7 +205,6 @@ fun Greeting(name: String) {
                 contentScale = ContentScale.Crop
             )
         }
-
 
 
     }
