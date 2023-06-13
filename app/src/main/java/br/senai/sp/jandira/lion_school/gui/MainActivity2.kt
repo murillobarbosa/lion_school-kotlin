@@ -10,6 +10,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -32,6 +35,7 @@ import br.senai.sp.jandira.lion_school.R
 import br.senai.sp.jandira.lion_school.gui.ui.theme.Lion_schoolTheme
 import br.senai.sp.jandira.lion_school.model.StudentList
 import br.senai.sp.jandira.lion_school.service.RetrofitFactory
+import coil.compose.AsyncImage
 import retrofit2.Callback
 import retrofit2.Call
 import retrofit2.Response
@@ -116,26 +120,10 @@ fun Greeting2(siglaCurso: String?, nomeCurso: String?) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 10.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.title),
-                    color = Color(105, 105, 105),
-                    fontSize = 30.sp,
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
-                    fontStyle = FontStyle.Normal,
-                    textAlign = TextAlign.Center,
-                )
-            }
-
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
                     .padding(start = 45.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.description_curse),
+                    text = nomeCurso,
                     color = Color(0, 140, 14),
                     fontSize = 30.sp,
                     fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
@@ -145,21 +133,7 @@ fun Greeting2(siglaCurso: String?, nomeCurso: String?) {
                 )
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 10.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.description_manage),
-                    color = Color(105, 105, 105),
-                    fontSize = 30.sp,
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
-                    fontStyle = FontStyle.Normal,
-                    textAlign = TextAlign.Center
 
-                )
-            }
             Spacer(modifier = Modifier.height(20.dp))
 
             Row(
@@ -190,6 +164,7 @@ fun Greeting2(siglaCurso: String?, nomeCurso: String?) {
                 }
 
             }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -231,93 +206,81 @@ fun Greeting2(siglaCurso: String?, nomeCurso: String?) {
                 }
             }
 
-
-            Column(Modifier.fillMaxWidth()) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(4.dp).clickable {
-                            val intent = Intent(context, MainActivity3::class.java)
-                            context.startActivity(intent)
-                        },
-                    backgroundColor = Color(32,32,32),
-                    shape = RoundedCornerShape(30.dp),
-                    //border = BorderStroke(2.dp, Color.Blue)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-
-                    ) {
+            LazyColumn(){
+                items(alunos){
+                    Column(Modifier.fillMaxWidth()) {
                         Card(
-                            modifier = Modifier.size(100.dp),
-                            shape = CircleShape,
-                            backgroundColor = Color(32,32,32)
-                        ){
-                            Image(painter = painterResource(id = R.drawable.imagem_homem), contentDescription = null)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(4.dp)
+                                .clickable {
+                                    val intent = Intent(context, MainActivity3::class.java)
+                                    context.startActivity(intent)
+                                    intent.putExtra("foto", it.foto)
+                                    intent.putExtra("nomeAluno", it.nome)
+                                    Log.i("foto", "onFailure: ${it.foto}")
+                                    Log.i("nome", "onFailure: ${it.nome}")
+                                },
+                            backgroundColor = Color(32,32,32),
+                            shape = RoundedCornerShape(30.dp),
+                            //border = BorderStroke(2.dp, Color.Blue)
+                        ) {
+
+                            Row(
+                                modifier = Modifier.padding(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+
+                            ) {
+                                Card(
+                                    modifier = Modifier.size(100.dp),
+                                    shape = CircleShape,
+                                    backgroundColor = Color(32,32,32)
+                                ){
+                                    AsyncImage(model = it.foto, contentDescription = "Aluno",
+                                        modifier = Modifier.size(100.dp))
+                                }
+                                Log.i("Alunos", "${it.nome}: ")
+
+                            }
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 110.dp, top = 5.dp)) {
+                                Text(text = (it.nome), color = Color.Black,  fontSize = 18.sp,
+                                    fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
+                                    fontStyle = FontStyle.Normal,
+                                    textAlign = TextAlign.Center)
+
+                            }
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .width(50.dp)
+                                    .padding(start = 192.dp, top = 80.dp)) {
+                                Text(text = (it.status),   color = Color(0, 140, 14))
+//                                val cor =  if (it.status == "Cursando") {
+//                                    Color(252, 191, 64)
+//                                } else {
+//                                    Color(51, 71, 176)
+//                                }
+
+                            }
                         }
 
-                    }
-                    Row(Modifier.fillMaxWidth().padding(start = 110.dp, top = 5.dp)) {
-                        Text(text = stringResource(id = R.string.name), color = Color.Black,  fontSize = 18.sp,
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
-                            fontStyle = FontStyle.Normal,
-                            textAlign = TextAlign.Center)
-
-                    }
-                    Row(Modifier.fillMaxWidth().width(50.dp).padding(start = 192.dp, top = 80.dp)) {
-                        Text(text = stringResource(id = R.string.c),   color = Color(0, 140, 14))
 
                     }
                 }
-
-
-//                Card(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(4.dp).clickable {
-//                            val intent = Intent(context, MainActivity3::class.java)
-//                            context.startActivity(intent)
-//                        },
-//
-//                    backgroundColor = Color(32,32,32),
-//                    shape = RoundedCornerShape(30.dp)
-//                    //border = BorderStroke(2.dp, Color.Blue)
-//                ) {
-//                    Row(
-//                        modifier = Modifier.padding(8.dp),
-//                        verticalAlignment = Alignment.CenterVertically
-//
-//                    ) {
-//                        Card(
-//                            modifier = Modifier.size(100.dp),
-//                            shape = CircleShape,
-//                            backgroundColor = Color(32,32,32)
-//                        ){
-//                            Image(painter = painterResource(id = R.drawable.imagem_mulher), contentDescription = null)
-//                        }
-//
-//                    }
-//                    Row(Modifier.fillMaxWidth().padding(start = 115.dp, top = 5.dp)) {
-//                        Text(text = stringResource(id = R.string.name_woman), color = Color.Black,  fontSize = 18.sp,
-//                            fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
-//                            fontStyle = FontStyle.Normal,
-//                            textAlign = TextAlign.Center)
-//
-//                    }
-//                    Row(Modifier.fillMaxWidth().width(50.dp).padding(start = 192.dp, top = 80.dp)) {
-//                        Text(text = stringResource(id = R.string.f),   color = Color(0, 140, 14))
-//
-//                    }
-//                }
             }
+
 
         }
 
     }
 
 }
+private fun <T> Call<T>.enqueue(callback: Callback<StudentList>) {
 
+}
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
