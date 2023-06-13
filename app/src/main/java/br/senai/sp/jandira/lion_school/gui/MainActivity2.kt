@@ -2,6 +2,7 @@ package br.senai.sp.jandira.lion_school.gui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
@@ -12,7 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +30,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.senai.sp.jandira.lion_school.R
 import br.senai.sp.jandira.lion_school.gui.ui.theme.Lion_schoolTheme
+import br.senai.sp.jandira.lion_school.model.StudentList
+import br.senai.sp.jandira.lion_school.service.RetrofitFactory
+import retrofit2.Callback
+import retrofit2.Call
+import retrofit2.Response
 
 class MainActivity2 : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +46,10 @@ class MainActivity2 : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting2("Android")
+                    val siglaCurso = intent.getStringExtra("siglaCurso")
+                    val nomeCurso = intent.getStringExtra("nomeCurso")
+
+                    Greeting2(siglaCurso, nomeCurso)
                 }
             }
         }
@@ -48,8 +57,37 @@ class MainActivity2 : ComponentActivity() {
 }
 
 @Composable
-fun Greeting2(name: String) {
+fun Greeting2(siglaCurso: String?, nomeCurso: String?) {
+
     val context = LocalContext.current
+
+    val siglaCurso = siglaCurso!!
+    val nomeCurso = nomeCurso!!
+
+    val callAlunos = RetrofitFactory().getAlunosService().getCurso(siglaCurso)
+
+    var alunos by remember {
+        mutableStateOf(listOf<br.senai.sp.jandira.lion_school.model.Student>())
+    }
+
+    //Call Alunos
+    callAlunos.enqueue(object : Callback<StudentList> {
+        override fun onResponse(
+            call: Call<StudentList>,
+            response: Response<StudentList>
+        ) {
+            //Duas exclamações seignificam que pode vir nulo
+            alunos = response.body()!!.alunos;
+        }
+
+        override fun onFailure(call: Call<StudentList>, t: Throwable) {
+            Log.i(
+                "ds2m",
+                "onFailure: ${t.message}"
+            )
+        }
+    })
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -193,6 +231,7 @@ fun Greeting2(name: String) {
                 }
             }
 
+
             Column(Modifier.fillMaxWidth()) {
                 Card(
                     modifier = Modifier
@@ -233,44 +272,44 @@ fun Greeting2(name: String) {
                 }
 
 
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(4.dp).clickable {
-                            val intent = Intent(context, MainActivity3::class.java)
-                            context.startActivity(intent)
-                        },
-
-                    backgroundColor = Color(32,32,32),
-                    shape = RoundedCornerShape(30.dp)
-                    //border = BorderStroke(2.dp, Color.Blue)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-
-                    ) {
-                        Card(
-                            modifier = Modifier.size(100.dp),
-                            shape = CircleShape,
-                            backgroundColor = Color(32,32,32)
-                        ){
-                            Image(painter = painterResource(id = R.drawable.imagem_mulher), contentDescription = null)
-                        }
-
-                    }
-                    Row(Modifier.fillMaxWidth().padding(start = 115.dp, top = 5.dp)) {
-                        Text(text = stringResource(id = R.string.name_woman), color = Color.Black,  fontSize = 18.sp,
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
-                            fontStyle = FontStyle.Normal,
-                            textAlign = TextAlign.Center)
-
-                    }
-                    Row(Modifier.fillMaxWidth().width(50.dp).padding(start = 192.dp, top = 80.dp)) {
-                        Text(text = stringResource(id = R.string.f),   color = Color(0, 140, 14))
-
-                    }
-                }
+//                Card(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(4.dp).clickable {
+//                            val intent = Intent(context, MainActivity3::class.java)
+//                            context.startActivity(intent)
+//                        },
+//
+//                    backgroundColor = Color(32,32,32),
+//                    shape = RoundedCornerShape(30.dp)
+//                    //border = BorderStroke(2.dp, Color.Blue)
+//                ) {
+//                    Row(
+//                        modifier = Modifier.padding(8.dp),
+//                        verticalAlignment = Alignment.CenterVertically
+//
+//                    ) {
+//                        Card(
+//                            modifier = Modifier.size(100.dp),
+//                            shape = CircleShape,
+//                            backgroundColor = Color(32,32,32)
+//                        ){
+//                            Image(painter = painterResource(id = R.drawable.imagem_mulher), contentDescription = null)
+//                        }
+//
+//                    }
+//                    Row(Modifier.fillMaxWidth().padding(start = 115.dp, top = 5.dp)) {
+//                        Text(text = stringResource(id = R.string.name_woman), color = Color.Black,  fontSize = 18.sp,
+//                            fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
+//                            fontStyle = FontStyle.Normal,
+//                            textAlign = TextAlign.Center)
+//
+//                    }
+//                    Row(Modifier.fillMaxWidth().width(50.dp).padding(start = 192.dp, top = 80.dp)) {
+//                        Text(text = stringResource(id = R.string.f),   color = Color(0, 140, 14))
+//
+//                    }
+//                }
             }
 
         }
@@ -284,6 +323,6 @@ fun Greeting2(name: String) {
 @Composable
 fun DefaultPreview2() {
     Lion_schoolTheme {
-        Greeting2("Android")
+        Greeting2("","")
     }
 }
